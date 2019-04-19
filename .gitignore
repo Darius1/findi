@@ -1,0 +1,5 @@
+# Ignore the openIPs folder
+openIPs/
+
+# Ignore the vscode folder
+.vscode/

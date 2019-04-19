@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import subprocess
 import pickle
 import datetime
@@ -21,7 +20,11 @@ def find_between( s, first, last ):
     except ValueError:
         return ""
 
-subprocess.call(["mkdir", "./data"])
+win_path = ".\\openIPs"
+create_dir = "mkdir " + "\"" + win_path + "\""
+# print(create_dir)
+make_dir = subprocess.call(create_dir, shell=True)
+# print(make_dir)
 
 maxRedirect = 4
 scanresults = []
@@ -34,7 +37,7 @@ dataCtr = 0
 zeroCtr = 0
 Timeout = 3
 
-os.system('clear')
+os.system('cls')
 
 def updateScreen():
         print_pos(1,1,"-*- NETSCAN -*-")
@@ -73,7 +76,7 @@ class myThread (threading.Thread):
         self.sock.close()
         
         if self.result == 0:
-                #print(self.ip+":"+str(self.port)+"  ","Port is OPEN")
+                print(self.ip+":"+str(self.port)+"  ","Port is OPEN")
                 openCtr+=1
                 scanresults.append(self.ip+":"+str(self.port))
                 address = self.ip+":"+str(self.port)
@@ -81,19 +84,45 @@ class myThread (threading.Thread):
                 tryAgain = True
                 while tryAgain and redirectCtr<maxRedirect:
                         addressFile = address.replace("/", "\\")
-                        #print("Downloading "+address)
-                        subprocess.call(["rm", "-R", "./data/"+addressFile], stdout=FNULL, stderr=FNULL)
-                        subprocess.call(["mkdir", "./data/"+addressFile], stdout=FNULL, stderr=FNULL)                   # Create directory for address:port
-                        subprocess.call(["mkdir", "./data/"+addressFile+"/content"], stdout=FNULL, stderr=FNULL)        # Create directory for content on address:port
-                        subprocess.call(["wget", "--max-redirect=5", "-T", "10", "-t", "1", "-P", "./data/"+addressFile+"/content", "-O", "./data/"+addressFile+"/content/data.html", address], stdout=FNULL, stderr=FNULL) # Download content
+                        addressDir = addressFile.replace(":", ".")
+                        # print("Downloading "+address)
+                        # print(win_path + "\\" + addressFile)
+                        # print(win_path + "\\" + addressDir)
+                        # print(address)
+                        remove = "rmdir /s /q " + "\"" + win_path + "\\" + addressDir + "\""
+                        # print("\n", remove, "\n")
+
+                        val = subprocess.call(remove, stdout=FNULL, stderr=FNULL, shell=True)
+
+                        # print("\n", val, "\n")
+
+                        add_dir = "mkdir " + "\"" + win_path + "\\" + addressDir + "\""
+                        val2 = subprocess.call(add_dir, stdout=FNULL, stderr=FNULL, shell=True)  
+                        # print(val2)                 # Create directory for address:port
+                        subprocess.call(["mkdir", win_path + "\\" + addressDir+ "\\content"], stdout=FNULL, stderr=FNULL, shell=True)        # Create directory for content on address:port
+                        
+                        wget_str = "wget --max-redirect=5 -T 10 -t 1 -P " + "\"" + win_path + "\\" + addressDir + "\\content\"" + " -O " + "\"" + win_path + "\\" + addressDir + "\\content\\data.html\" " + address
+                        
+                        # print(wget_str)
+
+                        val3 = subprocess.call(wget_str, stdout=FNULL, stderr=FNULL, shell=True) # Download content
+
+                        # print(val3)
 
                         # -- Create website info
                         pageData = {}
                         pageData["address"]=address
                         pageData["dateOfScan"]=str(datetime.datetime.now())
+                        
+                        
+                        
+                        
+                        data_html_str = ".\\" + addressDir + "\\content\\data.html"
 
+                        # print(os.stat(data_html_str).st_size)
+                        # print("\n")
                         try:
-                                pageData["size"]=os.stat("./data/"+addressFile+"/content/data.html").st_size
+                                pageData["size"]=os.stat(data_html_str).st_size
                         except:
                                 pageData["size"]=-1
                                 
@@ -106,9 +135,10 @@ class myThread (threading.Thread):
                         pageTitle = ""
                         tryAgain = False
                         try:
-                                htmldata=open("./data/"+addressFile+"/content/data.html").read().lower()
+                                
+                                htmldata=open(data_html_str).read().lower()
                                 htmldataSingleQTs = htmldata.replace("\"","'")
-                                #print(htmldataSingleQTs)
+                                # print(htmldataSingleQTs)
 
                                 if pageTitle=="":
                                         pageTitle=find_between(htmldata, "<title>", "</title>")
@@ -154,7 +184,9 @@ class myThread (threading.Thread):
                         
 
                         #print(pageData)
-                        pageDataFile = open("./data/"+addressFile+"/info", "wb")
+                        open_file_str = ".\\openIPs\\" + addressDir + "\\info.txt"
+                        # print(open_file_str)
+                        pageDataFile = open(open_file_str, "wb")
                         pickle.dump(pageData, pageDataFile)
                         pageDataFile.close()
         else:
@@ -165,13 +197,13 @@ class myThread (threading.Thread):
 
 threads = []
 
-for i in range(210,220):
+for i in range(144,145):
         for j in range(0,255):
-                thread = myThread('xxx.xxx.'+str(i)+'.'+str(j), 80)
+                thread = myThread('192.252.'+str(i)+'.'+str(j), 80)
                 thread.start()
                 threads.append(thread)
                 
-                while(runningCtr >= 30):
+                while(runningCtr >= 40):
                         time.sleep(0.02)
                 
 

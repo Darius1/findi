@@ -1,15 +1,18 @@
-#!/usr/bin/env python3
 import subprocess
 import pickle
 import datetime
 from os import listdir
 
-listOfEntries = listdir("./data")
+win_path = ".\\openIPs"
+create_dir = "\"" + win_path + "\""
+listOfEntries = listdir(win_path)
 filesSizeZero = 0
 listOfZero = ""
+
 #print(listOfEntries)
 for each in listOfEntries:
-        pageDataFile = open("./data/"+each+"/info", "rb")
+        open_file_str = ".\\openIPs\\" + each + "\\info.txt"
+        pageDataFile = open(open_file_str, "rb")
         pageData = pickle.load(pageDataFile)
         pageDataFile.close()
         if pageData["size"]>0:
