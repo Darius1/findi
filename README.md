@@ -1,4 +1,12 @@
-# findi
+<h1 align = "center"> findi </h1>    
+<div align = "center">
+ 
+![License](https://img.shields.io/crates/l/rustc-serialize.svg)
+![GitHub release](https://img.shields.io/badge/release-v1.0-red.svg)
+[![Build Status](https://travis-ci.org/Darius1/findi.svg?branch=feature-continuous-integration)](https://travis-ci.org/Darius1/findi)
+[![Coverage Status](https://coveralls.io/repos/github/Darius1/findi/badge.svg?branch=feature-continuous-integration)](https://coveralls.io/github/Darius1/findi?branch=feature-continuous-integration)
+</div>
+
 tool to easily discover unindexed but interesting deep web content
 
 // DISCLAIMER This is a proof of concept and nowhere near a production tool //
