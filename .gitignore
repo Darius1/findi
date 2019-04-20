@@ -3,3 +3,11 @@ openIPs/
 
 # Ignore the vscode folder
 .vscode/
+
+# Ignore the pytest cache folders
+.pytest_cache/
+__pycache__/
+*.pyc
+
+# Ignore all coverage files
+*.coverage

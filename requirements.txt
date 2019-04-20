@@ -1,0 +1,5 @@
+pytest >= 4.4.1
+py >= 1.8.0
+pluggy >= 0.9.0
+coveralls
+pytest-cov
