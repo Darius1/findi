@@ -1,0 +1,25 @@
+{
+  "name": "findi",
+  "version": "1.0.0",
+  "description": "A Python port scanner",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "zerorpc": "git+https://github.com/fyears/zerorpc-node.git"
+  },
+  "repository": "https://github.com/Darius1/findi",
+  "keywords": [
+    "Electron",
+    "findi",
+    "scanner",
+    "demo"
+  ],
+  "author": "Darius McFarland",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^1.7.6",
+    "electron-packager": "^9.0.1"
+  }
+}

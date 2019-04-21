@@ -1,5 +1,5 @@
 import pytest
-from findi import findi_scan
+from Findi import findi_scan
 
 @pytest.mark.openEmpty
 def test_open_ip_scan_empty():
