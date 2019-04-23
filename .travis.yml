@@ -5,6 +5,6 @@ python:
 install: "pip install -r Findi/requirements.txt"
 # command to run tests
 script:
-  - pytest --cov=findi test/
+  - pytest --cov=Findi test/
 after_success:
 - coveralls
