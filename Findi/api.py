@@ -1,5 +1,5 @@
 from __future__ import print_function
-from Findi import findi_scan as scan
+from findi_scan import test_main as scan
 import sys
 import zerorpc  
 
@@ -10,7 +10,7 @@ class FindiAPI(object):
         '''
 
         try:
-            scan.test_main(address)
+            scan(address)
         except Exception:
             print("An error occurred while scanning the IP address")
     
