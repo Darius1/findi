@@ -1,9 +1,34 @@
+var path=require('path');
 // Modules to control application life and create native browser window
 const {app, BrowserWindow} = require('electron')
 
 // Keep a global reference of the window object, if you don't, the window will
 // be closed automatically when the JavaScript object is garbage collected.
 let mainWindow
+let pyProc = null
+let pyPort = null
+
+const selectPort = () => {
+  pyPort = 4242
+  return pyPort
+}
+
+const createPyProc = () => {
+  let port = '' + selectPort()
+  let script = path.join(__dirname, '//Findi', '//api.py')
+  console.log(script)
+  pyProc = require('child_process').spawn('python', [script, port])
+
+  if (pyProc != null) {
+    console.log('child process success')
+  }
+}
+
+const exitPyProc = () => {
+  pyProc.kill()
+  pyProc = null
+  pyPort = null
+}
 
 function createWindow () {
   // Create the browser window.
@@ -34,6 +59,8 @@ function createWindow () {
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.on('ready', createWindow)
+app.on('ready', createPyProc)
+app.on('will-quit', exitPyProc)
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
