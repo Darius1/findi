@@ -14,3 +14,6 @@ __pycache__/
 
 # Ignore the Node Modules folder
 node_modules/
+
+# Ignore the semantic UI folder
+semantic/

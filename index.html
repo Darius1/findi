@@ -1,11 +1,44 @@
 <!DOCTYPE html>
 <html>
+
   <head>
     <meta charset="UTF-8">
     <title>Hello Findi!</title>
+    <link rel="stylesheet" type="text/css" href="semantic/dist/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="Findi/GUI/css/titlebar.css">
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"
+      integrity="sha256-hVVnYaiADRTO2PzUGmuLJr8BLUSjGIZsDYGmIJLv2b8=" crossorigin="anonymous"></script>
+    <script src="semantic/dist/semantic.min.js"></script>
     <script src="Findi/GUI/scanner.js"></script>
+    <script src="Findi/GUI/js/titlebar.js"></script>
   </head>
+
   <body>
+    <div class="ui tiny borderless menu">
+      <div class=" item">
+        <i class="search link icon"></i>
+      </div>
+      <a class="item">
+        File
+      </a>
+      <a class="item">
+        Edit
+      </a>
+      <a class="item">
+        View
+      </a>
+      <div class="right menu">
+        <a class="ui min item">
+          <span id="min-btn"><i class="window minimize outline icon"></i></span>
+        </a>
+        <a class="ui item">
+          <span id="max-btn"><i class="window maximize outline icon"></i> </span>
+        </a>
+        <a class="ui close item">
+          <span id="close-btn"><i class="close icon"></i></span>
+        </a>
+      </div>
+    </div>
     <h1>Hello Findi!</h1>
     <p>Input an IP Address to scan!</p>
     <input id="address" value="192.168.0.1">
@@ -15,4 +48,5 @@
     // You can also require other files to run in this process
     require('./renderer.js')
   </script>
+
 </html>
