@@ -3,15 +3,16 @@
   <head>
     <meta charset="UTF-8">
     <title>Hello Findi!</title>
+    <script src="Findi/GUI/scanner.js"></script>
   </head>
   <body>
     <h1>Hello Findi!</h1>
     <p>Input an IP Address to scan!</p>
     <input id="address" value="192.168.0.1">
-    <div id="result"></div>
-    <script>
-      // You can also require other files to run in this process
-      require('./renderer.js')
-    </script>
+    <button id="searchbutton" type="button" onclick="print_text()">Scan IP</button>
   </body>
+  <script>
+    // You can also require other files to run in this process
+    require('./renderer.js')
+  </script>
 </html>

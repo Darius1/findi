@@ -40,10 +40,11 @@ def updateScreen():
 
 FNULL = open(os.devnull, 'w')
 class myThread (threading.Thread):
-    def __init__(self, ip, port):
+    def __init__(self, ip, port, gui_mode):
         threading.Thread.__init__(self)
         self.ip = ip
         self.port = port
+        self.gui_mode = gui_mode
     def run(self):
         global scanresults
         global runningCtr
@@ -57,7 +58,8 @@ class myThread (threading.Thread):
         global FNULL
         runningCtr += 1
         totalCtr += 1
-        updateScreen()
+        if not self.gui_mode:
+                updateScreen()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(Timeout)
         self.result = self.sock.connect_ex((self.ip,self.port))
@@ -81,7 +83,8 @@ class myThread (threading.Thread):
 
         # Our thread is done, so we need to update our script stats
         runningCtr -= 1
-        updateScreen()
+        if not self.gui_mode:
+                updateScreen()
 
 def print_pos(y, x, text):
         '''
@@ -284,9 +287,9 @@ threads = []
 
 
 def main():
-        for i in range(144, 145):
-                for j in range(0, 10):
-                        thread = myThread('192.252.'+str(i)+'.'+str(j), 80)
+        for i in range(30, 60):
+                for j in range(160, 220):
+                        thread = myThread('24.109.'+str(i)+'.'+str(j), 80, False)
                         thread.start()
                         threads.append(thread)
 
@@ -301,20 +304,27 @@ def test_main(ip_address_str):
         '''
                 The starting point for our test classes. This allows us to run the script with a predetermined IP address string
         '''
-        
-        thread = myThread(ip_address_str, 80)
+        thread = myThread(ip_address_str, 80, False)
         thread.start()
         threads.append(thread)
 
         while(runningCtr >= 1):
                 time.sleep(0.02)
+
+def gui_scan(ip_address_str):
+        '''
+                The starting point for our test classes. This allows us to run the script with a predetermined IP address string
+        '''
+        thread = myThread(ip_address_str, 80, True)
+        thread.start()
+        threads.append(thread)
+
+        while(runningCtr >= 1):
+                time.sleep(0.02)
+        
+        print("Successfully scanned " + ip_address_str)
                 
 
 if __name__ == '__main__' :
         main()
-else:
-        print("testing...")
-        test_main('192.252.144.8')
-        print("done!")
-
 
