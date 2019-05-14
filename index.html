@@ -84,25 +84,39 @@
     </div>
     <div class="ui bottom attached  segment pushable">
         <div class="ui inverted left inline vertical thin visible sidebar menu">
-          <a class="item">
+          <a class="item" id="scan-ip">
             
             Scan IP Address
           </a>
-          <a class="item">
+          <a class="item" id="scan-range">
             
             Scan IP Address Range
           </a>
-          <a class="item">
+          <a class="item" id="view-ip">
          
             View Scanned IP Addresses
           </a>
         </div>
         <div class="pusher">
-          <div class="ui basic segment">
-              <h1>Hello Findi!</h1>
-              <p>Input an IP Address to scan!</p>
-              <input id="address" value="192.168.0.1">
-              <button id="searchbutton" type="button" onclick="print_text()">Scan IP</button>
+          <div class="ui middle aligned center aligned grid">
+            <div class="column">
+                <div class="ui hidden divider"></div>
+                <div class="ui center aligned icon huge header">
+                    <i class="circular search icon"></i>
+                    Findi
+                </div>
+                <div class="ui hidden divider"></div>
+                <div class="ui text center aligned container">
+                    <p>Input an IP Address to scan!</p>
+                </div>
+                <div class="ui hidden divider"></div>
+                <div class="ui large action input">
+                    <input type="text" placeholder="192.168.0.1" id="address">
+                    <button class="ui teal button" id="searchbutton" type="button" onclick="print_text()">Scan IP</button>
+                </div>
+            </div>
+              
+              
           </div>
         </div>
       </div>
@@ -121,7 +135,10 @@
     context: $('.bottom.segment'),
     dimPage: false
   })
-  .sidebar('attach events', '#menu-toggle');
+  .sidebar('attach events', '#menu-toggle')
+  .sidebar('attach events', '#scan-ip')
+  .sidebar('attach events', '#scan-range')
+  .sidebar('attach events', '#view-ip');
 ;
   </script>
 
