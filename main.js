@@ -12,9 +12,10 @@ function createWindow () {
     width: 800,
     height: 600,
     webPreferences: {
-      nodeIntegration: true
+      nodeIntegration: true,
+      zoomFactor: 1.1
     },
-    // frame: false,
+    frame: false,
   })
 
   // and load the index.html of the app.
