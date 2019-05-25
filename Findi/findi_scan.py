@@ -24,27 +24,34 @@ win_path = ".\\openIPs"
 # Clear the terminal so that we have a clear area to display script info
 os.system('cls')
 
-def updateScreen():
-        '''
-                Displays realtime stats about the currently running scan
-        '''
 
-        print_pos(1,1,"-*- NETSCAN -*-")
-        print_pos(3,1,"Total:      "+str(totalCtr))
-        print_pos(4,1,"Running:    "+str(runningCtr)+"    ")
-        print_pos(5,1,"Timeout:    "+str(Timeout)+"s")
-        print_pos(6,1,"Open:       "+str(openCtr))
-        print_pos(7,1,"Closed:     "+str(closedCtr))
-        print_pos(8,1,"Data avail: "+str(dataCtr))
-        print_pos(9,1,"Data none:  "+str(zeroCtr))
+def updateScreen():
+    '''
+            Displays realtime stats about the currently running scan
+    '''
+
+    print_pos(1, 1, "-*- NETSCAN -*-")
+    print_pos(3, 1, "Total:      "+str(totalCtr))
+    print_pos(4, 1, "Running:    "+str(runningCtr)+"    ")
+    print_pos(5, 1, "Timeout:    "+str(Timeout)+"s")
+    print_pos(6, 1, "Open:       "+str(openCtr))
+    print_pos(7, 1, "Closed:     "+str(closedCtr))
+    print_pos(8, 1, "Data avail: "+str(dataCtr))
+    print_pos(9, 1, "Data none:  "+str(zeroCtr))
+
 
 FNULL = open(os.devnull, 'w')
+
+
 class myThread (threading.Thread):
     def __init__(self, ip, port, gui_mode):
         threading.Thread.__init__(self)
         self.ip = ip
         self.port = port
+
+        # If we're running the script from the GUI we don't need to display anything
         self.gui_mode = gui_mode
+
     def run(self):
         global scanresults
         global runningCtr
@@ -56,275 +63,289 @@ class myThread (threading.Thread):
         global maxRedirect
         global Timeout
         global FNULL
+        global redirectCtr
         runningCtr += 1
         totalCtr += 1
         if not self.gui_mode:
-                updateScreen()
+            updateScreen()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(Timeout)
-        self.result = self.sock.connect_ex((self.ip,self.port))
+        self.result = self.sock.connect_ex((self.ip, self.port))
         self.sock.close()
-        
+
         # If we can connect to the IP address, try to process it
         if self.result == 0:
-                # print(self.ip+":"+str(self.port)+"  ","Port is OPEN")
-                openCtr+=1
-                scanresults.append(self.ip+":"+str(self.port))
-                address = self.ip+":"+str(self.port)
-                
-                tryAgain = True
+            openCtr += 1
+            scanresults.append(self.ip+":"+str(self.port))
+            address = self.ip+":"+str(self.port)
 
-                while tryAgain and redirectCtr<maxRedirect:
-                        create_ip_folder(address, FNULL)
-                        process_ip(address, FNULL)
-                        tryAgain = process_webpage(address, redirectCtr, dataCtr, zeroCtr, FNULL)
+            tryAgain = True
+
+            while tryAgain and redirectCtr < maxRedirect:
+                create_ip_folder(address, FNULL)
+                process_ip(address, FNULL)
+                tryAgain = process_webpage(
+                    address, redirectCtr, dataCtr, zeroCtr, FNULL)
+                
+                # If we still need to follow the redirects increment our redirect counter
+                if tryAgain:
+                    redirectCtr += 1
         else:
-                closedCtr += 1
+            closedCtr += 1
 
         # Our thread is done, so we need to update our script stats
         runningCtr -= 1
         if not self.gui_mode:
-                updateScreen()
+            updateScreen()
+
 
 def print_pos(y, x, text):
-        '''
-                Prints the most up to date information about the current scan to the console
-        '''
+    '''
+            Prints the most up to date information about the current scan to the console
+    '''
 
-        sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
-        sys.stdout.flush()
+    sys.stdout.write("\x1b7\x1b[%d;%df%s\x1b8" % (y, x, text))
+    sys.stdout.flush()
 
 
-def find_between( s, first, last ):
-        '''
-                Finds all the information between the first and last parameters
-                
-                For example, if htmldata contains: <title> Hello </title>
-                
-                find_between(htmldata, "<title>", "</title>")
-                >>> Hello
+def find_between(s, first, last):
+    '''
+            Finds all the information between the first and last parameters
 
-        '''
+            For example, if htmldata contains: <title> Hello </title>
 
-        try:
-                start = s.index( first ) + len( first )
-                end = s.index( last, start )
-                return s[start:end]
-        except ValueError:
-                return ""
+            find_between(htmldata, "<title>", "</title>")
+            >>> Hello
+
+    '''
+
+    try:
+        start = s.index(first) + len(first)
+        end = s.index(last, start)
+        return s[start:end]
+    except ValueError:
+        return ""
+
 
 def prepare_env():
-        '''
-                Set up our environment that the script will run in by creating the directory that will store all of our scanned IP addresses
+    '''
+            Set up our environment that the script will run in by creating the directory that will store all of our scanned IP addresses
 
-                The openIPs folder will be created in the location that the findi_scan script is run
-        '''
+            The openIPs folder will be created in the location that the findi_scan script is run
+    '''
 
-        create_dir = "mkdir " + "\"" + win_path + "\""
-        # print(create_dir)
-        subprocess.call(create_dir, shell=True)
-        # print(make_dir)
+    create_dir = "mkdir " + "\"" + win_path + "\""
+    # print(create_dir)
+    subprocess.call(create_dir, shell=True)
+    # print(make_dir)
+
 
 def create_ip_folder(address, FNULL):
-        '''
-                Creates the folder hierarchy the program will use
+    '''
+            Creates the folder hierarchy the program will use
 
-                Each open IP address will have its own folder created with the IP address as the name. If a folder with the same name exists, it will be removed
+            Each open IP address will have its own folder created with the IP address as the name. If a folder with the same name exists, it will be removed
 
-                A subdirectory called content will also be created which will hold the webpage we download called data.html
-        '''
+            A subdirectory called content will also be created which will hold the webpage we download called data.html
+    '''
 
-        # Convert the passed in IP address into a directory name
-        address_file = address.replace("/", "\\")
-        address_as_dir_name = address_file.replace(":", ".")
+    # Convert the passed in IP address into a directory name
+    address_file = address.replace("/", "\\")
+    address_as_dir_name = address_file.replace(":", ".")
 
-        # If the directory we want to create exists, remove it
-        remove = "rmdir /s /q " + "\"" + win_path + "\\" + address_as_dir_name + "\""
-        subprocess.call(remove, stdout=FNULL, stderr=FNULL, shell=True)
+    # If the directory we want to create exists, remove it
+    remove = "rmdir /s /q " + "\"" + win_path + "\\" + address_as_dir_name + "\""
+    subprocess.call(remove, stdout=FNULL, stderr=FNULL, shell=True)
 
-        # Create the directory that will store our IP address information
-        add_dir = "mkdir " + "\"" + win_path + "\\" + address_as_dir_name + "\""
-        subprocess.call(add_dir, stdout=FNULL, stderr=FNULL, shell=True)              
-        # Create the content subdirectory that will hold our webpage data.html
-        subprocess.call(["mkdir", win_path + "\\" + address_as_dir_name + "\\content"], stdout=FNULL, stderr=FNULL, shell=True)
+    # Create the directory that will store our IP address information
+    add_dir = "mkdir " + "\"" + win_path + "\\" + address_as_dir_name + "\""
+    subprocess.call(add_dir, stdout=FNULL, stderr=FNULL, shell=True)
+    # Create the content subdirectory that will hold our webpage data.html
+    subprocess.call(["mkdir", win_path + "\\" + address_as_dir_name +
+                     "\\content"], stdout=FNULL, stderr=FNULL, shell=True)
+
 
 def process_ip(address, FNULL):
-        '''
-                Use wget to access the IP address we found, and store the contents of what we find in a file called data.html
-        '''
-        # Convert the passed in IP address into a directory name
-        address_file = address.replace("/", "\\")
-        address_as_dir_name = address_file.replace(":", ".")
+    '''
+            Use wget to access the IP address we found, and store the contents of what we find in a file called data.html
+    '''
+    # Convert the passed in IP address into a directory name
+    address_file = address.replace("/", "\\")
+    address_as_dir_name = address_file.replace(":", ".")
 
-        # Use wget to access our IP address and download the contents of the webpage to a file called data.html
-        wget_str = "wget --max-redirect=5 -T 10 -t 1 -P " + "\"" + win_path + "\\" + address_as_dir_name + "\\content\"" + " -O " + "\"" + win_path + "\\" + address_as_dir_name + "\\content\\data.html\" " + address
-                        
-        subprocess.call(wget_str, stdout=FNULL, stderr=FNULL, shell=True)
+    # Use wget to access our IP address and download the contents of the webpage to a file called data.html
+    wget_str = "wget --max-redirect=5 -T 10 -t 1 -P " + "\"" + win_path + "\\" + address_as_dir_name + \
+        "\\content\"" + " -O " + "\"" + win_path + "\\" + \
+        address_as_dir_name + "\\content\\data.html\" " + address
+
+    subprocess.call(wget_str, stdout=FNULL, stderr=FNULL, shell=True)
+
 
 def process_webpage(address, redirectCtr, dataCtr, zeroCtr, FNULL):
-        '''
-                Process our downloaded webpage and gather the information we find in a text file called info.txt
+    '''
+            Process our downloaded webpage and gather the information we find in a text file called info.txt
 
-                info.txt will store the following website information: IP address, date scanned, size of the webpage, webpage title, and comments about the scanned IP
+            info.txt will store the following website information: IP address, date scanned, size of the webpage, webpage title, and comments about the scanned IP
 
-                Returns True if we're going to follow a redirect. False otherwise
-        '''
+            Returns True if we're going to follow a redirect. False otherwise
+    '''
 
-        # Convert the passed in IP address into a directory name
-        address_file = address.replace("/", "\\")
-        address_as_dir_name = address_file.replace(":", ".")
+    # Convert the passed in IP address into a directory name
+    address_file = address.replace("/", "\\")
+    address_as_dir_name = address_file.replace(":", ".")
 
-         # Create website info
-        pageData = {}
-        pageData["address"] = address
-        pageData["dateOfScan"] = str(datetime.datetime.now())
-        
-        data_html_str = win_path + "\\" + address_as_dir_name + "\\content\\data.html"
+    # Create website info
+    pageData = {}
+    pageData["address"] = address
+    pageData["dateOfScan"] = str(datetime.datetime.now())
 
-        # Attempt to figure out the size (in bytes) of the webpage
-        try:
-                pageData["size"] = os.stat(data_html_str).st_size
-        except:
-                pageData["size"] = -1
-        
-        # If our webpage isn't empty, it will have a size larger than 0, so we'll increment our counter that keeps track of the number of webpages we've found that have data
-        if pageData["size"] > 0:
-                dataCtr += 1
-        else:
-                zeroCtr += 1
+    data_html_str = win_path + "\\" + address_as_dir_name + "\\content\\data.html"
 
-        pageComment = ""
-        pageTitle = ""
-        tryAgain = False
+    # Attempt to figure out the size (in bytes) of the webpage
+    try:
+        pageData["size"] = os.stat(data_html_str).st_size
+    except:
+        pageData["size"] = -1
 
-        # Attempt to parse the webpage we found to determine what type of device we found along with other information
-        try:
-                # Convert the webpage to lowercase change backslashes to quotes for easier processing
-                htmldata = open(data_html_str).read().lower()
-                htmldataSingleQTs = htmldata.replace("\"", "'")
+    # If our webpage isn't empty, it will have a size larger than 0, so we'll increment our counter that keeps track of the number of webpages we've found that have data
+    if pageData["size"] > 0:
+        dataCtr += 1
+    else:
+        zeroCtr += 1
 
-                # Try to figure out what the title of the webpage is
-                if pageTitle == "":
-                        pageTitle = find_between(
-                            htmldata, "<title>", "</title>")
-                if pageTitle == "":
-                        pageTitle = find_between(htmldata, "<title ", "/>")
+    pageComment = ""
+    pageTitle = ""
+    tryAgain = False
 
-                # Try to determine what type of device we've scanned and if the device is password protected
-                if "printer" in htmldata:
-                        pageComment += "printer found; "
-                if "password" in htmldata:
-                        pageComment += "login form found; "
-                if "router" in htmldata:
-                        pageComment += "router found; "
-                if "dreambox" in htmldata:
-                        pageComment += "Dreambox receiver found; "
+    # Attempt to parse the webpage we found to determine what type of device we found along with other information
+    try:
+        # Convert the webpage to lowercase change backslashes to quotes for easier processing
+        htmldata = open(data_html_str).read().lower()
+        htmldataSingleQTs = htmldata.replace("\"", "'")
 
-                # Mark if we get redirected or encounter any javascript
-                if ('http-equiv="refresh"' in htmldata) or ("http-equiv='refresh'" in htmldata):
-                        pageComment += "redirect found; "
-                
-                if ("<script type='text/javascript'>" in htmldata) or ('<script type="text/javascript">' in htmldata):
-                        pageComment += "javascript found; "
+        # Try to figure out what the title of the webpage is
+        if pageTitle == "":
+            pageTitle = find_between(
+                htmldata, "<title>", "</title>")
+        if pageTitle == "":
+            pageTitle = find_between(htmldata, "<title ", "/>")
 
-                redirect = ["window.location='", "window.location ='", "window.location= '", "window.location = '",
-                            "window.location.href='", "window.location.href ='", "window.location.href= '", "window.location.href = '"]
+        # Try to determine what type of device we've scanned and if the device is password protected
+        if "printer" in htmldata:
+            pageComment += "printer found; "
+        if "password" in htmldata:
+            pageComment += "login form found; "
+        if "router" in htmldata:
+            pageComment += "router found; "
+        if "dreambox" in htmldata:
+            pageComment += "Dreambox receiver found; "
 
-                # If our IP address redirects us somewhere, try to follow it
-                for startredirect in redirect:
-                        if startredirect in htmldataSingleQTs:
-                                pageComment += "location-change found [FOLLOW]; "
-                                redirectAddress = find_between(
-                                    htmldataSingleQTs, startredirect, "'").strip()
-                                if redirectAddress[:7] == "http://":
-                                        address = redirectAddress
-                                elif redirectAddress[:1] == "/":
-                                        address += redirectAddress
-                                else:
-                                        address += "/" + redirectAddress
-                                
-                                tryAgain = True
-                                redirectCtr += 1
+        # Mark if we get redirected or encounter any javascript
+        if ('http-equiv="refresh"' in htmldata) or ("http-equiv='refresh'" in htmldata):
+            pageComment += "redirect found; "
 
-        except:
-                pageTitle = "[parseError]"
+        if ("<script type='text/javascript'>" in htmldata) or ('<script type="text/javascript">' in htmldata):
+            pageComment += "javascript found; "
 
-        # Store the title and all of our comments
-        pageData["title"] = pageTitle
-        pageData["comment"] = pageComment
-        
-        # Create the info.txt file and use pickle to write all of our collected information into the file
-        open_file_str = win_path + "\\" + address_as_dir_name + "\\info.txt"
-        pageDataFile = open(open_file_str, "wb")
-        pickle.dump(pageData, pageDataFile)
-        pageDataFile.close()
+        redirect = ["window.location='", "window.location ='", "window.location= '", "window.location = '",
+                    "window.location.href='", "window.location.href ='", "window.location.href= '", "window.location.href = '"]
 
-        return tryAgain
+        # If our IP address redirects us somewhere, try to follow it
+        for startredirect in redirect:
+            if startredirect in htmldataSingleQTs:
+                pageComment += "location-change found [FOLLOW]; "
+                redirectAddress = find_between(
+                    htmldataSingleQTs, startredirect, "'").strip()
+                if redirectAddress[:7] == "http://":
+                    address = redirectAddress
+                elif redirectAddress[:1] == "/":
+                    address += redirectAddress
+                else:
+                    address += "/" + redirectAddress
+
+                tryAgain = True
+
+    except:
+        pageTitle = "[parseError]"
+
+    # Store the title and all of our comments
+    pageData["title"] = pageTitle
+    pageData["comment"] = pageComment
+
+    # Create the info.txt file and use pickle to write all of our collected information into the file
+    open_file_str = win_path + "\\" + address_as_dir_name + "\\info.txt"
+    pageDataFile = open(open_file_str, "wb")
+    pickle.dump(pageData, pageDataFile)
+    pageDataFile.close()
+
+    return tryAgain
+
 
 def get_page_size(address):
-        '''
-                Analyze data.html to determine the size of the webpage at the passed in IP address in bytes
+    '''
+            Analyze data.html to determine the size of the webpage at the passed in IP address in bytes
 
-                If the data.html is empty, this method will return -1
-        '''
+            If the data.html is empty, this method will return -1
+    '''
 
-        # Convert the passed in IP address into a directory name
-        address_file = address.replace("/", "\\")
-        address_as_dir_name = address_file.replace(":", ".")
-        
-        data_html_str = win_path + "\\" + address_as_dir_name + "\\content\\data.html"
-        
-        page_size = 0
+    # Convert the passed in IP address into a directory name
+    address_file = address.replace("/", "\\")
+    address_as_dir_name = address_file.replace(":", ".")
 
-        # Attempt to figure out the size (in bytes) of the webpage
-        try:
-                page_size = os.stat(data_html_str).st_size
-        except:
-                page_size = -1
-        return page_size
+    data_html_str = win_path + "\\" + address_as_dir_name + "\\content\\data.html"
+
+    page_size = 0
+
+    # Attempt to figure out the size (in bytes) of the webpage
+    try:
+        page_size = os.stat(data_html_str).st_size
+    except:
+        page_size = -1
+    return page_size
+
 
 threads = []
 
 
 def main():
-        for i in range(30, 60):
-                for j in range(160, 220):
-                        thread = myThread('24.109.'+str(i)+'.'+str(j), 80, False)
-                        thread.start()
-                        threads.append(thread)
+    for i in range(144, 150):
+        for j in range(45, 80):
+            thread = myThread('24.160.'+str(i)+'.'+str(j), 80, False)
+            thread.start()
+            threads.append(thread)
 
-                        while(runningCtr >= 40):
-                                time.sleep(0.02)
-
-        while(runningCtr > 0):
+            while(runningCtr >= 40):
                 time.sleep(0.02)
-        
+
+    while(runningCtr > 0):
+        time.sleep(0.02)
+
 
 def test_main(ip_address_str):
-        '''
-                The starting point for our test classes. This allows us to run the script with a predetermined IP address string
-        '''
-        thread = myThread(ip_address_str, 80, False)
-        thread.start()
-        threads.append(thread)
+    '''
+            The starting point for our test classes. This allows us to run the script with a predetermined IP address string
+    '''
+    thread = myThread(ip_address_str, 80, False)
+    thread.start()
+    threads.append(thread)
 
-        while(runningCtr >= 1):
-                time.sleep(0.02)
+    while(runningCtr >= 1):
+        time.sleep(0.02)
+
 
 def gui_scan(ip_address_str):
-        '''
-                The starting point for our test classes. This allows us to run the script with a predetermined IP address string
-        '''
-        thread = myThread(ip_address_str, 80, True)
-        thread.start()
-        threads.append(thread)
+    '''
+            The starting point for our GUI. This allows us to run the script with a user supplied IP address
+    '''
+    thread = myThread(ip_address_str, 80, True)
+    thread.start()
+    threads.append(thread)
 
-        while(runningCtr >= 1):
-                time.sleep(0.02)
-        
-        print("Successfully scanned " + ip_address_str)
-                
+    while(runningCtr >= 1):
+        time.sleep(0.02)
 
-if __name__ == '__main__' :
-        main()
+    print("Successfully scanned " + ip_address_str)
 
+
+if __name__ == '__main__':
+    main()
