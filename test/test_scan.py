@@ -44,7 +44,7 @@ def test_open_ip_scan_redirect():
 	findi_scan.test_main(ip_address_str)
 	
 	# open up the info.txt file to ensure that we followed a redirect 
-	log = open('.\\openIPs\\24.160.144.45.80\\info.txt').read()
+	log = open('.\\openIPs\\24.160.144.45.80\\info.txt', encoding="ISO-8859-1").read()
 	assert 'location-change found [FOLLOW];' in log
 
 	# Ensure the the webpage is not empty
