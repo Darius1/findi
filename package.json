@@ -1,0 +1,26 @@
+{
+  "name": "findi",
+  "version": "1.0.0",
+  "description": "A Python port scanner",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron ."
+  },
+  "dependencies": {
+    "python-shell": "^1.0.7",
+    "semantic-ui": "^2.4.2"
+  },
+  "repository": "https://github.com/Darius1/findi",
+  "keywords": [
+    "Electron",
+    "findi",
+    "scanner",
+    "demo"
+  ],
+  "author": "Darius McFarland",
+  "license": "CC0-1.0",
+  "devDependencies": {
+    "electron": "^5.0.0",
+    "electron-rebuild": "^1.8.4"
+  }
+}

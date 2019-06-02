@@ -2,9 +2,9 @@ language: python
 python:
   - "3.6"
 # command to install dependencies
-install: "pip install -r requirements.txt"
+install: "pip install -r Findi/requirements.txt"
 # command to run tests
 script:
-  - pytest --cov=findi test/
+  - pytest --cov=Findi test/
 after_success:
 - coveralls
