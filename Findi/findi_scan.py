@@ -71,7 +71,11 @@ class myThread (threading.Thread):
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(Timeout)
         self.result = self.sock.connect_ex((self.ip, self.port))
+
+        # Set the timeout back to None so the socket goes back into blocking mode
+        self.sock.settimeout(None)
         self.sock.close()
+        lock = threading.Lock()
 
         # If we can connect to the IP address, try to process it
         if self.result == 0:
@@ -91,10 +95,14 @@ class myThread (threading.Thread):
                 if tryAgain:
                     redirectCtr += 1
         else:
+            lock.acquire()
             closedCtr += 1
+            lock.release()
 
         # Our thread is done, so we need to update our script stats
+        lock.acquire()
         runningCtr -= 1
+        lock.release()
         if not self.gui_mode:
             updateScreen()
 
