@@ -11,3 +11,9 @@ __pycache__/
 
 # Ignore all coverage files
 *.coverage
+
+# Ignore the Node Modules folder
+node_modules/
+
+# Ignore the semantic UI folder
+semantic/

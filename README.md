@@ -3,8 +3,8 @@
  
 ![License](https://img.shields.io/crates/l/rustc-serialize.svg)
 ![GitHub release](https://img.shields.io/badge/release-v1.0-red.svg)
-[![Build Status](https://travis-ci.org/Darius1/findi.svg?branch=master)](https://travis-ci.org/Darius1/findi)
-[![Coverage Status](https://coveralls.io/repos/github/Darius1/findi/badge.svg?branch=master)](https://coveralls.io/github/Darius1/findi?branch=master)
+[![Build Status](https://travis-ci.org/Darius1/findi.svg?branch=development)](https://travis-ci.org/Darius1/findi)
+[![Coverage Status](https://coveralls.io/repos/github/Darius1/findi/badge.svg?branch=development)](https://coveralls.io/github/Darius1/findi?branch=master)
 </div>
 
 tool to easily discover unindexed but interesting deep web content
