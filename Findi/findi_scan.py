@@ -17,7 +17,7 @@ openCtr = 0
 closedCtr = 0
 dataCtr = 0
 zeroCtr = 0
-Timeout = 3
+Timeout = 5
 redirectCtr = 0
 win_path = ".\\openIPs"
 
@@ -64,10 +64,14 @@ class myThread (threading.Thread):
         global Timeout
         global FNULL
         global redirectCtr
+        lock = threading.Lock()
+
+        lock.acquire()
         runningCtr += 1
         totalCtr += 1
         if not self.gui_mode:
             updateScreen()
+        lock.release()
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.settimeout(Timeout)
         self.result = self.sock.connect_ex((self.ip, self.port))
@@ -75,11 +79,14 @@ class myThread (threading.Thread):
         # Set the timeout back to None so the socket goes back into blocking mode
         self.sock.settimeout(None)
         self.sock.close()
-        lock = threading.Lock()
+        
 
         # If we can connect to the IP address, try to process it
         if self.result == 0:
+            lock.acquire()
             openCtr += 1
+            lock.release()
+
             scanresults.append(self.ip+":"+str(self.port))
             address = self.ip+":"+str(self.port)
 
@@ -102,10 +109,10 @@ class myThread (threading.Thread):
         # Our thread is done, so we need to update our script stats
         lock.acquire()
         runningCtr -= 1
-        lock.release()
+        
         if not self.gui_mode:
             updateScreen()
-
+        lock.release()
 
 def print_pos(y, x, text):
     '''
@@ -316,17 +323,29 @@ threads = []
 
 
 def main():
-    for i in range(144, 150):
+    for i in range(145, 150):
         for j in range(45, 80):
-            thread = myThread('24.160.'+str(i)+'.'+str(j), 80, False)
+            thread = myThread('22.150.'+str(i)+'.'+str(j), 80, False)
             thread.start()
             threads.append(thread)
 
             while(runningCtr >= 40):
                 time.sleep(0.02)
+                
+    # Try to let all the threads finish scanning on their own, but if they don't timeout after a specified time (secs)
+    timeoutCounter = 0
+    while (runningCtr > 0):
+        # Keep track of the time out status to display a certain message
+        # timedOut = False
+        # if timeoutCounter == 1:
+        #         print("Finished scanning. Waiting for all threads!")
+        time.sleep(1)
 
-    while(runningCtr > 0):
-        time.sleep(0.02)
+        timeoutCounter += 1
+        if timeoutCounter == Timeout:
+                # timedOut = True
+                # print("Timed out")
+                break
 
 
 def test_main(ip_address_str):
