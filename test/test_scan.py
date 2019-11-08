@@ -29,5 +29,37 @@ def test_open_ip_scan_has_data():
 	
 	findi_scan.test_main(ip_address_str)
 
-	# Ensure the the webpage is empty
+	# Ensure the the webpage is not empty
 	assert findi_scan.get_page_size(ip_address_str+ '.80') > 0,"test failed, empty page found"
+
+@pytest.mark.openRedirect
+def test_open_ip_scan_redirect():
+	'''
+		Tests finding an open IP address that has a redirect
+	'''
+	
+	ip_address_str = '24.160.144.45'
+	
+	
+	findi_scan.test_main(ip_address_str)
+	
+	# open up the info.txt file to ensure that we followed a redirect 
+	log = open('.\\openIPs\\24.160.144.45.80\\info.txt', encoding="ISO-8859-1").read()
+	assert 'location-change found [FOLLOW];' in log
+
+	# Ensure the the webpage is not empty
+	assert findi_scan.get_page_size(ip_address_str + '.80') > 0,"test failed, empty page found"
+
+@pytest.mark.guiScan
+def test_open_ip_scan_gui():
+	'''
+		Tests the scan gui method with an empty IP address. This test doesn't differ from the scan empty test other than the fact that it uses the scan gui method
+	'''
+	
+	ip_address_str = '192.252.144.8'
+	
+	
+	findi_scan.gui_scan(ip_address_str)
+
+	# Ensure the the webpage is empty
+	assert findi_scan.get_page_size(ip_address_str + '.80') < 1,"test failed, non-empty page found"
