@@ -289,7 +289,7 @@ threads = []
 def main():
         for i in range(30, 60):
                 for j in range(160, 220):
-                        thread = myThread('24.109.'+str(i)+'.'+str(j), 80, False)
+                        thread = myThread('71.44.'+str(i)+'.'+str(j), 80, False)
                         thread.start()
                         threads.append(thread)
 
