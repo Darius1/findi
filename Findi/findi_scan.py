@@ -189,11 +189,15 @@ def process_ip(address, FNULL):
     address_as_dir_name = address_file.replace(":", ".")
 
     # Use wget to access our IP address and download the contents of the webpage to a file called data.html
-    wget_str = "wget --max-redirect=5 -T 10 -t 1 -P " + "\"" + win_path + "\\" + address_as_dir_name + \
+    wget_str = "wget --max-redirect=5 -T 10 -t 1 --convert-links -P " + "\"" + win_path + "\\" + address_as_dir_name + \
         "\\content\"" + " -O " + "\"" + win_path + "\\" + \
         address_as_dir_name + "\\content\\data.html\" " + address
 
-    subprocess.call(wget_str, stdout=FNULL, stderr=FNULL, shell=True)
+    print(wget_str)
+    try:
+        subprocess.call(wget_str, stdout=FNULL, stderr=FNULL, shell=True)
+    except Exception as e:
+        print(e)
 
 
 def process_webpage(address, redirectCtr, dataCtr, zeroCtr, FNULL):
@@ -323,9 +327,9 @@ threads = []
 
 
 def main():
-    for i in range(145, 150):
-        for j in range(45, 80):
-            thread = myThread('22.150.'+str(i)+'.'+str(j), 80, False)
+    for i in range(30, 60):
+        for j in range(160, 220):
+            thread = myThread('71.45.'+str(i)+'.'+str(j), 80, False)
             thread.start()
             threads.append(thread)
 
@@ -375,4 +379,5 @@ def gui_scan(ip_address_str):
 
 
 if __name__ == '__main__':
-    main()
+#     main()
+    test_main("71.45.49.173")
