@@ -1,4 +1,3 @@
-import subprocess
 import pickle
 import datetime
 import os
@@ -19,7 +18,6 @@ dataCtr = 0
 zeroCtr = 0
 Timeout = 5
 redirectCtr = 0
-win_path = ".\\openIPs"
 
 # Clear the terminal so that we have a clear area to display script info
 os.system('cls')
@@ -141,45 +139,6 @@ def find_between(s, first, last):
     except ValueError:
         return ""
 
-
-def prepare_env():
-    '''
-            Set up our environment that the script will run in by creating the directory that will store all of our scanned IP addresses
-
-            The openIPs folder will be created in the location that the findi_scan script is run
-    '''
-
-    create_dir = "mkdir " + "\"" + win_path + "\""
-    # print(create_dir)
-    subprocess.call(create_dir, shell=True)
-    # print(make_dir)
-
-
-def create_ip_folder(address, FNULL):
-    '''
-            Creates the folder hierarchy the program will use
-
-            Each open IP address will have its own folder created with the IP address as the name. If a folder with the same name exists, it will be removed
-
-            A subdirectory called content will also be created which will hold the webpage we download called data.html
-    '''
-
-    # Convert the passed in IP address into a directory name
-    address_file = address.replace("/", "\\")
-    address_as_dir_name = address_file.replace(":", ".")
-
-    # If the directory we want to create exists, remove it
-    remove = "rmdir /s /q " + "\"" + win_path + "\\" + address_as_dir_name + "\""
-    subprocess.call(remove, stdout=FNULL, stderr=FNULL, shell=True)
-
-    # Create the directory that will store our IP address information
-    add_dir = "mkdir " + "\"" + win_path + "\\" + address_as_dir_name + "\""
-    subprocess.call(add_dir, stdout=FNULL, stderr=FNULL, shell=True)
-    # Create the content subdirectory that will hold our webpage data.html
-    subprocess.call(["mkdir", win_path + "\\" + address_as_dir_name +
-                     "\\content"], stdout=FNULL, stderr=FNULL, shell=True)
-
-
 def process_ip(address, FNULL):
     '''
             Use wget to access the IP address we found, and store the contents of what we find in a file called data.html
@@ -290,12 +249,6 @@ def process_webpage(address, redirectCtr, dataCtr, zeroCtr, FNULL):
     # Store the title and all of our comments
     pageData["title"] = pageTitle
     pageData["comment"] = pageComment
-
-    # Create the info.txt file and use pickle to write all of our collected information into the file
-    open_file_str = win_path + "\\" + address_as_dir_name + "\\info.txt"
-    pageDataFile = open(open_file_str, "wb")
-    pickle.dump(pageData, pageDataFile)
-    pageDataFile.close()
 
     return tryAgain
 
