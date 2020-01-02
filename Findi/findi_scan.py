@@ -6,6 +6,11 @@ import threading
 import time
 import sys
 
+import Findi.windows_io as windows_io
+import Findi.page_renderer as renderer
+import Findi.page_parser as parser
+
+
 # Define the global variables that we will use
 maxRedirect = 4
 scanresults = []
@@ -90,7 +95,11 @@ class myThread (threading.Thread):
 
             tryAgain = True
 
+            ip_environment = windows_io.Windows_IO(address, FNULL)
+
             while tryAgain and redirectCtr < maxRedirect:
+                ip_environment.create_ip_folder()
+                
                 create_ip_folder(address, FNULL)
                 process_ip(address, FNULL)
                 tryAgain = process_webpage(
@@ -251,30 +260,6 @@ def process_webpage(address, redirectCtr, dataCtr, zeroCtr, FNULL):
     pageData["comment"] = pageComment
 
     return tryAgain
-
-
-def get_page_size(address):
-    '''
-            Analyze data.html to determine the size of the webpage at the passed in IP address in bytes
-
-            If the data.html is empty, this method will return -1
-    '''
-
-    # Convert the passed in IP address into a directory name
-    address_file = address.replace("/", "\\")
-    address_as_dir_name = address_file.replace(":", ".")
-
-    data_html_str = win_path + "\\" + address_as_dir_name + "\\content\\data.html"
-
-    page_size = 0
-
-    # Attempt to figure out the size (in bytes) of the webpage
-    try:
-        page_size = os.stat(data_html_str).st_size
-    except:
-        page_size = -1
-    return page_size
-
 
 threads = []
 
