@@ -24,6 +24,11 @@ def gather_page_metadata(rendered_page):
     page_data = {}
 
     page_data["Scan Date"] = f"{datetime.datetime.now():%m-%d-%Y %H:%M}"
+
+    if rendered_page == -1:
+        page_data["Comments"] = "Error occurred when parsing webpage"
+        return page_data
+    
     page_data["Page Title"] = check_page_title(rendered_page)
     page_data["Login Found"] = check_for_login(rendered_page)
 

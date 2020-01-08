@@ -19,6 +19,9 @@ class Windows_IO:
         address_file = address.replace("/", "\\")
         self.address_as_dir_name = address_file.replace(":", ".")
 
+        self.prepare_env()
+        self.create_ip_folder()
+
     def prepare_env(self):
         '''
                 Set up our environment that the script will run in by creating the directory that will store all of our scanned IP addresses
@@ -27,9 +30,7 @@ class Windows_IO:
         '''
 
         create_dir = "mkdir " + "\"" + self.win_path + "\""
-        # print(create_dir)
         subprocess.call(create_dir, shell=True)
-        # print(make_dir)
 
     def create_ip_folder(self):
         '''
@@ -59,7 +60,7 @@ class Windows_IO:
             Args:
                 results (dict of str): Dictonary that contains results collected from the IP scan
         '''
-        
+
         open_file_str = self.win_path + "\\" + self.address_as_dir_name + "\\info.txt"
         pageDataFile = open(open_file_str, "wb")
         pickle.dump(results, pageDataFile)
